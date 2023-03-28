@@ -1,6 +1,6 @@
 {
   "name": "yschat-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ysChat client developed with ReactJS and Bulma.",
   "author": {
     "name": "Yusuf Sezer",

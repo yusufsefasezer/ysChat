@@ -1,6 +1,6 @@
 {
   "name": "yschat-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ysChat server developed with Express.js and Socket.IO.",
   "author": {
     "name": "Yusuf Sezer",
