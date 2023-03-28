@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "description": "ysChat client developed with ReactJS and Bulma.",
   "author": {
-    "name": "Yusuf SEZER",
+    "name": "Yusuf Sezer",
     "email": "yusufsezer@mail.com",
-    "url": "http://www.yusufsezer.com/"
+    "url": "https://www.yusufsezer.com/"
   },
   "license": "MIT",
   "repository": {
