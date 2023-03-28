@@ -1,58 +1,76 @@
-import React, { Component } from 'react';
-import MessageList from './MessageList';
-import MessageForm from './MessageForm';
+import { useEffect, useState } from 'react';
+import { useMessages, useMessagesDispatch } from '../contexts/MessagesContext';
 import socket from '../Socket';
+import LoginForm from './LoginForm';
+import MessageForm from './MessageForm';
+import MessageList from './MessageList';
 
-class ChatArea extends Component {
-  state = {
-    messages: []
-  }
-  addMessage(message) {
-    let newMessages = this.state.messages;
-    if (newMessages.length > 35) newMessages.shift();
-    newMessages.push(message);
-    this.setState({ messages: newMessages })
-  }
-  componentDidMount() {
+function ChatArea() {
+  const [isLogin, setIsLogin] = useState(false);
+  const [userName, setUserName] = useState('');
+  const messages = useMessages();
+  const dispatch = useMessagesDispatch();
+
+  useEffect(() => {
+
+    function onNewUser(newUser) {
+      dispatch({
+        type: 'newmessage',
+        message: {
+          type: 'information',
+          user: newUser,
+          text: 'logged in.'
+        }
+      })
+    }
+
+    function onExitUser(exitUser) {
+      dispatch({
+        type: 'newmessage',
+        message: {
+          type: 'information',
+          user: exitUser,
+          text: 'left.'
+        }
+      })
+    }
+
+    function onNewMessage(message) {
+      dispatch({
+        type: 'newmessage',
+        message: {
+          type: 'secondary',
+          user: message.user,
+          text: message.text
+        }
+      })
+    }
 
     // New user
-    socket.on('new user', (fullname) => {
-      this.addMessage({
-        type: 'information',
-        user: fullname,
-        text: 'logged in.',
-        time: `${new Date().getHours()}:${new Date().getMinutes()}`
-      });
-    });
+    socket.on('new user', onNewUser);
 
     // Exit user
-    socket.on('exit user', (fullname) => {
-      this.addMessage({
-        type: 'information',
-        user: fullname,
-        text: 'left.',
-        time: `${new Date().getHours()}:${new Date().getMinutes()}`
-      });
-    });
+    socket.on('exit user', onExitUser);
 
     // New message
-    socket.on('new message', (message) => {
-      this.addMessage({
-        type: 'secondary',
-        user: message.user,
-        text: message.text,
-        time: `${new Date().getHours()}:${new Date().getMinutes()}`
-      });
-    });
-  }
-  render() {
-    return (
-      <section className="column">
-        <MessageList messages={this.state.messages} />
-        <MessageForm onAddMessage={this.addMessage.bind(this)} />
-      </section>
-    );
-  }
-};
+    socket.on('new message', onNewMessage);
+
+    return () => {
+      socket.off('new user', onNewUser);
+      socket.off('exit user', onExitUser);
+      socket.off('new message', onNewMessage);
+    }
+  }, [dispatch]);
+
+  return (
+    <section className="column">
+      <MessageList messages={messages} />
+      <div className="columns is-mobile has-background-white is-paddingless has-text-centered messageform">
+        {!isLogin && <LoginForm setLogin={setIsLogin} setUserName={setUserName} />}
+        {isLogin && <MessageForm fullName={userName} />}
+      </div>
+    </section>
+  );
+}
 
 export default ChatArea;

@@ -1,118 +1,81 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { useEffect, useRef } from 'react';
+import { useMessagesDispatch } from '../contexts/MessagesContext';
 import socket from '../Socket';
-let fullName = '';
 
-class MessageForm extends Component {
-  constructor(props) {
-    super(props);
-    this.onLogin = this.onLogin.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
-    this.appendEmoji = this.appendEmoji.bind(this);
+function MessageForm({ fullName }) {
+  const textareaRef = useRef(null);
+  const emojiRef = useRef(null);
+  const dispatch = useMessagesDispatch();
+
+  const checkSubmit = (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.keyCode === 13 || e.keyCode === 10)) {
+      handleSubmit();
+    }
   }
-  componentDidMount() {
-    let emojiList = document.getElementById('EmojiList')
+
+  const handleSubmit = () => {
+    let textarea = textareaRef.current;
+
+    socket.emit('send message', {
+      user: fullName,
+      text: textarea.value
+    });
+
+    dispatch({
+      type: 'newmessage',
+      message: {
+        type: 'primary',
+        user: fullName,
+        text: textarea.value
+      }
+    });
+
+    textarea.value = '';
+  }
+
+  const appendEmoji = (e) => {
+    let emoji = e.target.textContent;
+    const textarea = textareaRef.current;
+    textarea.value += emoji;
+  }
+
+  useEffect(() => {
+    let fragment = document.createDocumentFragment();
     let emojRange = [[128513, 128591], [128640, 128704]];
 
-    for (let i = 0; i < emojRange.length; i++) {
+    for (let i = 0, length = emojRange.length; i < length; i++) {
       let range = emojRange[i];
       for (let x = range[0]; x < range[1]; x++) {
         let newEmoji = document.createElement('button');
         newEmoji.className = 'button is-white is-paddingless is-medium'
         newEmoji.innerHTML = '&#' + x + ';';
-        newEmoji.addEventListener('click', this.appendEmoji);
-        emojiList.appendChild(newEmoji);
+        newEmoji.addEventListener('click', appendEmoji);
+        fragment.appendChild(newEmoji);
       }
     }
-  }
-  appendEmoji(event) {
-    let emoji = event.target.innerHTML;
-    ReactDOM.findDOMNode(this.refs.message).value += emoji;
-  }
-  onLogin(event) {
-    let loginDOM = ReactDOM.findDOMNode(this.refs.login),
-      textareaDOM = ReactDOM.findDOMNode(this.refs.textarea),
-      messageDOM = ReactDOM.findDOMNode(this.refs.message),
-      buttonDOM = ReactDOM.findDOMNode(this.refs.button),
-      resultDOM = ReactDOM.findDOMNode(this.refs.result),
-      userDOM = ReactDOM.findDOMNode(this.refs.user);
 
-    event.preventDefault();
-    fullName = userDOM.value;
+    emojiRef.current.appendChild(fragment);
+  }, []);
 
-    // Login
-    socket.emit('login', fullName);
-
-    // Check user
-    socket.on('check user', function (isUsing) {
-      if (!isUsing) {
-        loginDOM.classList.add('is-hidden');
-        textareaDOM.classList.remove('is-hidden');
-        messageDOM.focus();
-        buttonDOM.classList.remove('is-hidden');
-      } else {
-        resultDOM.textContent = 'This username is already in use.';
-        resultDOM.classList.remove('is-hidden');
-      }
-    });
-  }
-  checkSubmit(event) {
-    if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)) {
-      this.onSubmit();
-    }
-  }
-  onSubmit() {
-    let message = ReactDOM.findDOMNode(this.refs.message);
-
-    // Send message
-    socket.emit('send message', {
-      user: fullName,
-      text: message.value,
-    });
-
-    // Add message
-    this.props.onAddMessage({
-      type: 'primary',
-      user: fullName,
-      text: message.value,
-      time: `${new Date().getHours()}:${new Date().getMinutes()}`
-    });
-
-    message.value = '';
-  }
-  render() {
-    return (
-      <div className="columns is-mobile has-background-white is-paddingless has-text-centered messageform">
-
-        <div ref="login" className="column">
-          <form onSubmit={this.onLogin}>
-            <div className="field is-grouped is-grouped-centered">
-              <div className="control">
-                <input ref="user" className="input" type="text" placeholder="Full name" required="required" pattern="([\w]+[ ]+[\w])\w+" autoFocus={true} />
-                <p ref="result" className="help is-danger is-hidden"></p>
-              </div>
-              <div className="control">
-                <input className="button" type="submit" value="Login" />
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div ref="textarea" className="column is-paddingless is-hidden">
-          <textarea ref="message" className="textarea is-shadowless" rows="2" placeholder="Type a message" onKeyDown={this.checkSubmit.bind(this)}></textarea>
-        </div>
-
-        <div ref="button" className="column is-2-mobile is-1-tablet is-paddingless is-hidden">
-          <div className="emoji-wrapper">
-            <button className="button is-medium is-paddingless is-white" id="Emoji"><i className="far fa-smile"></i></button>
-            <div id="EmojiList" className="popover has-background-white"></div>
-          </div>
-          <button className="button is-medium is-paddingless is-white" onClick={this.onSubmit}><i className="far fa-paper-plane"></i></button>
-        </div>
-
+  return (
+    <>
+      <div className="column is-paddingless">
+        <textarea ref={textareaRef} autoFocus={true} className="textarea is-shadowless" rows="2" placeholder="Type a message" onKeyDown={checkSubmit}></textarea>
       </div>
-    );
-  }
-};
+
+      <div className="column is-2-mobile is-1-tablet is-paddingless">
+
+        <div className="emoji-wrapper">
+          <button className="button is-medium is-paddingless is-white" id="Emoji">
+            <i className="far fa-smile"></i>
+          </button>
+          <div ref={emojiRef} id="EmojiList" className="popover has-background-white"></div>
+        </div>
+
+        <button className="button is-medium is-paddingless is-white" onClick={handleSubmit}><i className="far fa-paper-plane"></i></button>
+      </div>
+    </>
+  );
+}
 
 export default MessageForm;

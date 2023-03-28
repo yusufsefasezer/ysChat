@@ -1,22 +1,24 @@
-import React from 'react';
-import './styles/App.css';
+import ChatFooter from './components/ChatFooter';
 import ChatHeader from './components/ChatHeader';
 import ChatMain from './components/ChatMain';
-import ChatFooter from './components/ChatFooter';
+import { MessagesProvider } from './contexts/MessagesContext';
+import './styles/App.css';
 
 function App() {
   return (
-    <div className="hero is-fullheight has-text-white is-unselectable is-size-6">
-      <div className="hero-body">
-        <div className="container">
+    <MessagesProvider>
+      <div className="hero is-fullheight has-text-white is-unselectable is-size-6">
+        <div className="hero-body">
+          <div className="container">
 
-          <ChatHeader title="ysChat - WebSocket Chat" />
-          <ChatMain />
-          <ChatFooter />
+            <ChatHeader title="ysChat - WebSocket Chat" />
+            <ChatMain />
+            <ChatFooter />
 
+          </div>
         </div>
       </div>
-    </div>
+    </MessagesProvider>
   );
 }
 

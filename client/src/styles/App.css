@@ -1,22 +1,27 @@
 body {
   background-color: #3F69AA;
 }
+
 header,
 footer {
   background-color: #2E4A62 !important;
 }
+
 textarea {
   resize: none !important;
   border: none !important;
 }
+
 .messagelist {
   padding: 0px 5px;
   height: 400px;
   overflow-y: scroll;
 }
+
 .messageform {
   border-top: 1px solid #DDD;
 }
+
 .text {
   border-radius: 5px;
   padding: 5px;
@@ -25,20 +30,25 @@ textarea {
   word-break: break-all;
   white-space: pre-line;
 }
+
 .primary .text {
   background-color: #ffffff;
   border: 1px solid #DDDDDD;
 }
+
 .secondary .text {
   background-color: #A5F1B3;
   border: 1px solid #A5F1B3;
 }
+
 aside {
   border-left: 1px solid #DDD;
 }
+
 .emoji-wrapper button {
   position: relative;
 }
+
 .popover {
   opacity: 0;
   visibility: hidden;
@@ -51,6 +61,7 @@ aside {
   max-height: 150px;
   overflow-y: scroll;
 }
+
 .emoji-wrapper:hover .popover {
   z-index: 10;
   opacity: 1;

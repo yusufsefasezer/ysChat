@@ -1,33 +1,36 @@
-import React, { Component } from 'react';
+import { useEffect, useState } from 'react';
 import socket from '../Socket';
 
-class Status extends Component {
-  state = {
-    status: 'info',
-    text: 'Connecting...'
-  }
-  componentDidMount() {
+function Status() {
+  const [status, setStatus] = useState('info');
+  const [text, setText] = useState('Connecting...');
+
+  useEffect(() => {
+    function onConnect() {
+      setStatus('success');
+      setText('Connection established.');
+    }
+
+    function onError(error) {
+      setStatus('danger');
+      setText(error.message);
+    }
+
     // Connect
-    socket.on('connect', () => {
-      this.setState({
-        status: 'success',
-        text: 'Connection established.'
-      });
-    });
+    socket.on('connect', onConnect);
 
     // Connect error
-    socket.on('connect_error', (error) => {
-      this.setState({
-        status: 'danger',
-        text: error.message,
-      });
-    });
-  }
-  render() {
-    return (
-      <small>Status: <span className={"has-text-" + (this.state.status)}>{this.state.text}</span></small>
-    );
-  }
-};
+    socket.on('connect_error', onError);
+
+    return () => {
+      socket.off('connect');
+      socket.off('connect_error');
+    };
+  }, []);
+
+  return (
+    <small>Status: <span className={"has-text-" + (status)}>{text}</span></small>
+  );
+}
 
 export default Status;

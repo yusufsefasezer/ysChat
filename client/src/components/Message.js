@@ -1,53 +1,49 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-const Primary = (props) => {
+function Primary({ data: { user, text, time } }) {
   return (
     <div className="column is-12 is-paddingless primary">
-      <strong className="is-block">{props.data.user}</strong>
+      <strong className="is-block">{user}</strong>
       <div className="text">
-        {props.data.text}
-        <time className="is-block has-text-right">{props.data.time}</time>
+        {text}
+        <time className="is-block has-text-right">{time}</time>
       </div>
     </div>
   );
-};
+}
 
-const Information = (props) => {
+function Information({ data: { user, text } }) {
   return (
-    <div className="column is-12 has-text-centered is-paddingless"><strong>{props.data.user}</strong> {props.data.text}</div>
+    <div className="column is-12 has-text-centered is-paddingless">
+      <strong>{user}</strong> {text}
+    </div>
   );
-};
+}
 
-const Secondary = (props) => {
+function Secondary({ data: { user, text, time } }) {
   return (
     <div className="column is-12 has-text-right is-paddingless is-clearfix secondary">
-      <strong className="is-block">{props.data.user}</strong>
+      <strong className="is-block">{user}</strong>
       <div className="text is-pulled-right">
-        {props.data.text}
-        <time className="is-block has-text-right">{props.data.time}</time>
+        {text}
+        <time className="is-block has-text-right">{time}</time>
       </div>
     </div>
   );
-};
+}
 
-const Message = (props) => {
-  let result = null;
-  switch (props.data.type) {
+function Message({ data }) {
+  console.log('refresh:' + Math.random());
+  switch (data.type) {
     case 'primary':
-      result = (<Primary data={props.data} />);
-      break;
+      return <Primary data={data} />;
     case 'information':
-      result = (<Information data={props.data} />);
-      break;
+      return <Information data={data} />;
     case 'secondary':
-      result = (<Secondary data={props.data} />);
-      break;
+      return <Secondary data={data} />;
     default:
-      console.log('Grrr');
-      break;
+      return <>Grrr</>;
   }
+}
 
-  return result;
-};
-
-export default Message;
+export default memo(Message);
