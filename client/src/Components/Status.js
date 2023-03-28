@@ -11,7 +11,7 @@ class Status extends Component {
     socket.on('connect', () => {
       this.setState({
         status: 'success',
-        text: 'Connection is established.'
+        text: 'Connection established.'
       });
     });
 
